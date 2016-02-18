@@ -329,7 +329,9 @@
                     }
                     success(oembedData, externalUrl, container);
                 },
-                error: settings.onError.call(container, externalUrl, embedProvider)
+                error: function () {
+                    settings.onError.call(container, externalUrl, embedProvider)
+                }
             }, settings.ajaxOptions || {});
             $.ajax(ajaxopts);
         }
@@ -697,6 +699,7 @@
 
         //Rich
         new $.fn.oembed.OEmbedProvider("twitter", "rich", ["twitter.com/.+"], "https://api.twitter.com/1/statuses/oembed.json"),
+        new $.fn.oembed.OEmbedProvider("facebook", "rich", ["facebook.com/.+"], "https://www.facebook.com/plugins/post/oembed.json"),
         new $.fn.oembed.OEmbedProvider("gmep", "rich", ["gmep.imeducate.com/.*", "gmep.org/.*"], "http://gmep.org/oembed.json"),
         new $.fn.oembed.OEmbedProvider("urtak", "rich", ["urtak.com/(u|clr)/.+"], "http://oembed.urtak.com/1/oembed"),
         new $.fn.oembed.OEmbedProvider("cacoo", "rich", ["cacoo.com/.+"], "http://cacoo.com/oembed.json"),
@@ -821,48 +824,6 @@
                         + '<p class="oembedall-updated-at">Last updated: ' + data.data.pushed_at + '</p></div></div>';
                 }
             }),
-        new $.fn.oembed.OEmbedProvider("facebook", "rich", ["facebook.com"], null
-            , {templateRegex: /.*\/([^\/]+)\/([^\/]+).*/,
-                template: function (url) {
-                    // adding script directly to DOM to make sure that it is loaded correctly.
-                    if (!$.fn.oembed.facebokScriptHasBeenAdded) {
-                        $('<div id="fb-root"></div>').appendTo('body');
-                        var script = document.createElement('script');
-                        script.type = 'text/javascript';
-                        script.text = '(function(d, s, id) {var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;js = d.createElement(s); js.id = id;js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";fjs.parentNode.insertBefore(js, fjs);}(document, "script", "facebook-jssdk"));';
-                        document.body.appendChild(script);
-                        $.fn.oembed.facebokScriptHasBeenAdded = true;
-                    }
-
-                    // returning template with url of facebook post.
-                    return '<div class="fb-post" data-href="' + url + '" data-width="520"><div class="fb-xfbml-parse-ignore"><a href="' + url + '"></div></div>';
-
-                }
-            }),
-        /*
-         // Saving old implementation of Facebook in case we will need it as example in the future.
-         new $.fn.oembed.OEmbedProvider("facebook", "rich", ["facebook.com/(people/[^\\/]+/\\d+|[^\\/]+$)"], "https://graph.facebook.com/$2$3/?callback=?"
-         ,{templateRegex:/.*facebook.com\/(people\/[^\/]+\/(\d+).*|([^\/]+$))/,
-         templateData : function(data){ if(!data.id)return false;
-         var out =  '<div class="oembedall-facebook1"><div class="oembedall-facebook2"><a href="http://www.facebook.com/">facebook</a> ';
-         if(data.from) out += '<a href="http://www.facebook.com/'+data.from.id+'">'+data.from.name+'</a>';
-         else if(data.link) out += '<a href="'+data.link+'">'+data.name+'</a>';
-         else if(data.username) out += '<a href="http://www.facebook.com/'+data.username+'">'+data.name+'</a>';
-         else out += '<a href="http://www.facebook.com/'+data.id+'">'+data.name+'</a>';
-         out += '</div><div class="oembedall-facebookBody"><div class="contents">';
-         if(data.picture) out += '<a href="'+data.link+'"><img src="'+data.picture+'"></a>';
-         else out += '<img src="https://graph.facebook.com/'+data.id+'/picture">';
-         if(data.from) out += '<a href="'+data.link+'">'+data.name+'</a>';
-         if(data.founded) out += 'Founded: <strong>'+data.founded+'</strong><br>';
-         if(data.category) out += 'Category: <strong>'+data.category+'</strong><br>';
-         if(data.website) out += 'Website: <strong><a href="'+data.website+'">'+data.website+'</a></strong><br>';
-         if(data.gender) out += 'Gender: <strong>'+data.gender+'</strong><br>';
-         if(data.description) out += data.description + '<br>';
-         out += '</div></div>';
-         return out;
-         }
-         }),
-         */
         new $.fn.oembed.OEmbedProvider("stackoverflow", "rich", ["stackoverflow.com/questions/[\\d]+"], "http://api.stackoverflow.com/1.1/questions/$1?body=true&jsonp=?"
             , {templateRegex: /.*questions\/([\d]+).*/,
                 templateData: function (data) {
